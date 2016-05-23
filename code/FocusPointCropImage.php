@@ -68,18 +68,21 @@ class FocusPointCropImage extends FocusPointImage
         // Crop first (once, on following actions CropData will be non-existant)
         $cropData = json_decode($img->CropData);
         // json - {"left":31,"top":31,"width":169,"height":169}
-        if ($cropData && $cropData->width != $img->width && $cropData->height != $img->height)
+        // json - { ["x"]=> int(89) ["y"]=> int(0) ["width"]=> int(192) ["height"]=> int(192) ["rotate"]=> int(0) ["scaleX"]=> int(1) ["scaleY"]=> int(1) ["originalX"]=> float(48.06) ["originalY"]=> int(0) ["originalWidth"]=> float(103.68) ["originalHeight"]=> float(103.68) }
+        //var_dump($cropData);
+        if ($cropData && $cropData->originalWidth != $img->width && $cropData->originalHeight != $img->height)
         {
             $cropped_img = $this->owner->CroppedOffsetImage(
-                $cropData->left, $cropData->top,
-                $cropData->width, $cropData->height
+                (int)$cropData->originalX, (int)$cropData->originalY,
+                (int)$cropData->originalWidth, (int)$cropData->originalHeight
             );
             //var_dump($img->width, $cropData->width);
             // Update FocusPoint (FocusX/Y = relative to original image, make relative to new image)
-            $cropped_img->FocusX = $img->FocusX * ($cropData->width / $img->width);
-            $cropped_img->FocusY = $img->FocusY * ($cropData->height / $img->height);
+            $cropped_img->FocusX = $img->FocusX * ($cropData->originalWidth / $img->width);
+            $cropped_img->FocusY = $img->FocusY * ($cropData->originalHeight / $img->height);
+            $cropped_img->CropData = null; // unset so we offset-crop only once
             // and recurse
-            return $cropped_img->CroppedFocusedImage($width, $height, $upscale);
+            return $cropped_img; //->CroppedFocusedImage($width, $height, $upscale);
         }
 
         // delegate to FocusPointImage class
@@ -89,12 +92,14 @@ class FocusPointCropImage extends FocusPointImage
 
     public function CroppedOffsetImage($offsetX, $offsetY, $width, $height)
     {
+//        var_dump($offsetX, $offsetY, $width, $height);
         return $this->owner->getFormattedImage(__FUNCTION__, $offsetX, $offsetY, $width, $height);
     }
 
     public function generateCroppedOffsetImage(Image_Backend $backend, $offsetX, $offsetY, $width, $height)
     {
-        return $backend->crop($offsetX, $offsetY, $width, $height);
+        // ATTENTION! GD_Backend::crop wants TOP/y as first argument (instead of x)
+        return $backend->crop($offsetY, $offsetX, $width, $height);
     }
     
 }

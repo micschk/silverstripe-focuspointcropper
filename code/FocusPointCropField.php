@@ -14,8 +14,6 @@ class FocusPointCropField extends FocusPointField
     protected static $default_options = array(
         'autoCropArea' => 1,
         'aspectRatio' => 1,
-        'minContainerWidth' => 200,
-        'minContainerHeight' => 200,
     );
 
     /**
@@ -67,6 +65,15 @@ class FocusPointCropField extends FocusPointField
 
         // feed config to js
         $field->setAttribute('data-config',json_encode($this->getOptions()));
+
+        // feed some more info to js
+        $sizes = array(
+            'originalWidth' => $image->width,
+            'originalHeight' => $image->height,
+            'previewWidth' => $image->FocusPointFieldImage()->width,
+            'previewHeight' => $image->FocusPointFieldImage()->height,
+        );
+        $field->setAttribute('data-sizes', json_encode($sizes));
 
     }
 }

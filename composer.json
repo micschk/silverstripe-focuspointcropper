@@ -10,5 +10,8 @@
 	}],
 	"require": {
 		"jonom/focuspoint": "~2.1"
+	},
+	"extra": {
+		"installer-name": "focuspointcropper"
 	}
 }

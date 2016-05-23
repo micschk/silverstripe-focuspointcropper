@@ -11,9 +11,12 @@
 			onadd: function() {
 				this._super();
 				// Position focus grid on form field
-				self = this;
-				crop_img = self.prev('img');
-				config = JSON.parse(this.getCropField().attr('data-config'));
+				var self = this;
+				var crop_img = self.prev('img');
+				var config = JSON.parse(this.getCropField().attr('data-config'));
+console.log(config);
+				var sizes = JSON.parse(this.getCropField().attr('data-sizes'));
+console.log(sizes);
 
 				crop_img.cropper( config )
 					.on('built.cropper',function(){
@@ -24,7 +27,8 @@
 						// load existing data (if any)
 						try {
 							var existing_crop = JSON.parse(self.getCropField().val());
-							crop_img.cropper('setCropBoxData', existing_crop);
+							// crop_img.cropper('setCropBoxData', existing_crop);
+							crop_img.cropper('setData', existing_crop);
 						} catch (e) {}
 
 						// move in the right order to have cropper (needs drag) on top of focusfield (needs click)
@@ -52,10 +56,22 @@
 						});
 					})
 					.on('crop.cropper', function(e){
-						var rounddata = $(this).cropper('getCropBoxData'); // get rounded data
 						// console.log(JSON.stringify($(this).cropper('getData',true)));
 						// console.log(JSON.stringify($(this).cropper('getImageData')));
-						// console.log(JSON.stringify($(this).cropper('getCropBoxData')));
+						// console.log(JSON.stringify($(this).cropper('getCropBoxData', true)));
+
+						// {"x":78,"y":0,"width":267,"height":267,"rotate":0,"scaleX":1,"scaleY":1}
+						var rounddata = $(this).cropper('getData', true); // get rounded data
+
+						// make sizes relative to original image (we're using a preview image):
+						// {originalWidth: 216, originalHeight: 144, previewWidth: 400, previewHeight: 267}
+						var scale = sizes.originalWidth / sizes.previewWidth;
+
+						rounddata.originalX = Math.round(rounddata.x * scale);
+						rounddata.originalY = Math.round(rounddata.y * scale);
+						rounddata.originalWidth = Math.round(rounddata.width * scale);
+						rounddata.originalHeight = Math.round(rounddata.height * scale);
+
 						self.getCropField().val(JSON.stringify(rounddata));
 					});
 			}
