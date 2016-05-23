@@ -3,8 +3,7 @@
 This module bolts an interface to crop an image from within the CMS, on top of Jonom's excellent FocusPoint module.
 This facilitates setting an initial crop of an image, which will be used as the basis for FocusPoint's smarter cropping.
 
-![Cropping AND FocusPoint in one](screenshots/cropper.png)
-![Set crop (drag/scroll) and FocusPoint (click)](screenshots/cropper_2.png)
+![Set crop (drag/scroll) and FocusPoint (click)](screenshots/cropper.png)
 
 ## Requirements
 
