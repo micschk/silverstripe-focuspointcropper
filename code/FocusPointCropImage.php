@@ -70,7 +70,10 @@ class FocusPointCropImage extends FocusPointImage
         // json - {"left":31,"top":31,"width":169,"height":169}
         // json - { ["x"]=> int(89) ["y"]=> int(0) ["width"]=> int(192) ["height"]=> int(192) ["rotate"]=> int(0) ["scaleX"]=> int(1) ["scaleY"]=> int(1) ["originalX"]=> float(48.06) ["originalY"]=> int(0) ["originalWidth"]=> float(103.68) ["originalHeight"]=> float(103.68) }
         //var_dump($cropData);
-        if ($cropData && $cropData->originalWidth != $img->width && $cropData->originalHeight != $img->height)
+        if ( $cropData
+            && property_exists($cropData, 'originalX') && property_exists($cropData, 'originalY')
+            && property_exists($cropData, 'originalWidth') && property_exists($cropData, 'originalHeight')
+            && $cropData->originalWidth != $img->width && $cropData->originalHeight != $img->height)
         {
             $cropped_img = $this->owner->CroppedOffsetImage(
                 (int)$cropData->originalX, (int)$cropData->originalY,
