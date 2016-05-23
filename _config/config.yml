@@ -1,0 +1,10 @@
+---
+Name: focuspointcrop
+After: 'focuspoint'
+---
+Image:
+  extensions:
+    - FocusPointCropImage
+# Injector:
+#   Image:
+#     class: FPImage

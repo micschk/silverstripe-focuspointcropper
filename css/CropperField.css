@@ -1,0 +1,14 @@
+body.cms.ss-uploadfield-edit-iframe {
+    overflow: visible;
+}
+body.cms.ss-uploadfield-edit-iframe .Actions {
+    margin-bottom: 10px;
+}
+#FocusPoint {
+    min-height: 230px;
+}
+#FocusPoint .focuspoint-field p {
+    margin-top: 6px;
+    margin-bottom: 0;
+}
+.cropper-center { display: none; }
