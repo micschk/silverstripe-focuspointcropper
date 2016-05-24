@@ -4,11 +4,14 @@ body.cms.ss-uploadfield-edit-iframe {
 body.cms.ss-uploadfield-edit-iframe .Actions {
     margin-bottom: 10px;
 }
-#FocusPoint {
+/*#FocusPoint {
     min-height: 230px;
-}
-#FocusPoint .focuspoint-field p {
-    margin-top: 6px;
+}*/
+#FocusPoint.focuspoint-fieldgroup .fieldgroup-field { display: block; }
+#FocusPoint.focuspoint-fieldgroup .fieldgroup-field .fieldholder-small { display: none; }
+
+#FocusPoint p.cropper_instruction {
+    margin-top: 2px;
     margin-bottom: 0;
 }
 .cropper-center { display: none; }

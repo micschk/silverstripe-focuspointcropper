@@ -9,45 +9,14 @@
 class FocusPointCropField extends FocusPointField
 {
     /**
-    * These options are fed directly to the js cropper (options: https://github.com/fengyuanchen/cropper/blob/v2.3.0/README.md#options)
+     * @Config
+     * These options are fed directly to the js cropper (options: https://github.com/fengyuanchen/cropper/blob/v2.3.0/README.md#options)
      */
-    protected static $default_options = array(
+    private static $cropconfig = array(
         'autoCropArea' => 1,
-        'aspectRatio' => 1,
+        //'aspectRatio' => 1,
     );
 
-    /**
-     * @param array $options
-     * @return $this
-     */
-    public function setOptions(array $options) {
-        $defaults = static::$default_options;
-        $this->options = array_merge($defaults, $options);
-        return $this;
-    }
-    /**
-     * @return array
-     */
-    public function getOptions() {
-        return $this->options;
-    }
-    /**
-     * @return string
-     */
-    public function getOption($name) {
-        return $this->options[$name];
-    }
-    /**
-     * Set an option after initialisation
-     * @param string $name
-     * @param string $value
-     * @return $this
-     */
-    public function setOption($name, $value) {
-        $this->options[$name] = $value;
-        return $this;
-    }
-    
     public function __construct(Image $image)
     {
         // call FocusPointField
@@ -60,11 +29,17 @@ class FocusPointCropField extends FocusPointField
         Requirements::javascript(FOCUSPOINTCROP_DIR.'/javascript/CropperField.js');
 
         // Add CropData field
-        $this->setOptions(array()); // sets options
+//        $this->setOptions(array()); // sets default options
         $this->push( $field = TextField::create('CropData') );
 
+        // Update field title & provide instructions
+        $this->setTitle(_t('FC_Crop.FieldTitle', 'Crop & Focus Point'));
+        $this->push( LiteralField::create( 'CropDescr', '<p class="cropper_instruction">'.
+            _t('FC_Crop.Descr','Drag & resize the Cropping Area (blue rectangle) and click to select the Focus Point 
+                                (main subject) of the image to ensure it is not lost during cropping') .'</p>' ) );
+
         // feed config to js
-        $field->setAttribute('data-config',json_encode($this->getOptions()));
+        $field->setAttribute('data-cropconfig', json_encode( $this->config()->cropconfig ));
 
         // feed some more info to js
         $sizes = array(
@@ -73,7 +48,7 @@ class FocusPointCropField extends FocusPointField
             'previewWidth' => $image->FocusPointFieldImage()->width,
             'previewHeight' => $image->FocusPointFieldImage()->height,
         );
-        $field->setAttribute('data-sizes', json_encode($sizes));
+        $field->setAttribute('data-cropsizing', json_encode($sizes));
 
     }
 }

@@ -13,9 +13,9 @@
 				// Position focus grid on form field
 				var self = this;
 				var crop_img = self.prev('img');
-				var config = JSON.parse(this.getCropField().attr('data-config'));
+				var config = JSON.parse(this.getCropField().attr('data-cropconfig'));
 console.log(config);
-				var sizes = JSON.parse(this.getCropField().attr('data-sizes'));
+				var sizes = JSON.parse(this.getCropField().attr('data-cropsizing'));
 console.log(sizes);
 
 				crop_img.cropper( config )
