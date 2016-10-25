@@ -85,7 +85,7 @@ class FocusPointCropImage extends FocusPointImage
             $cropped_img->FocusY = $img->FocusY * ($cropData->originalHeight / $img->height);
             $cropped_img->CropData = null; // unset so we offset-crop only once
             // and recurse
-            return $cropped_img; //->CroppedFocusedImage($width, $height, $upscale);
+            return $cropped_img->CroppedFocusedImage($width, $height, $upscale);
         }
 
         // delegate to FocusPointImage class
