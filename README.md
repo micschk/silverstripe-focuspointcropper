@@ -13,7 +13,7 @@ SilverStripe 3.3+
 
 ### Install / Composer
 
-composer require "micschk/silverstripe-focuspointcrop" "dev-master"
+composer require "micschk/silverstripe-focuspointcropper" "dev-master"
 
 ## Basic usage
 
