@@ -69,12 +69,15 @@ class FocusPointCropImage extends FocusPointImage
         $cropData = json_decode($img->CropData);
         // json - {"left":31,"top":31,"width":169,"height":169}
         // json - { ["x"]=> int(89) ["y"]=> int(0) ["width"]=> int(192) ["height"]=> int(192) ["rotate"]=> int(0) ["scaleX"]=> int(1) ["scaleY"]=> int(1) ["originalX"]=> float(48.06) ["originalY"]=> int(0) ["originalWidth"]=> float(103.68) ["originalHeight"]=> float(103.68) }
-        //var_dump($cropData);
-        if ( $cropData
+//        print '<!-- ' . print_r($cropData, true) . ' -->';
+        if (
+            $cropData // If we have data and the properties we need are defined
             && property_exists($cropData, 'originalX') && property_exists($cropData, 'originalY')
             && property_exists($cropData, 'originalWidth') && property_exists($cropData, 'originalHeight')
-            && $cropData->originalWidth != $img->width && $cropData->originalHeight != $img->height)
-        {
+            // AND at least width or height is different from original
+            && ( $cropData->originalWidth != $img->width || $cropData->originalHeight != $img->height )
+        ) {
+//            print "<!-- width: {$img->width} width: {$img->height} -->";
             $cropped_img = $this->owner->CroppedOffsetImage(
                 (int)$cropData->originalX, (int)$cropData->originalY,
                 (int)$cropData->originalWidth, (int)$cropData->originalHeight
@@ -85,12 +88,12 @@ class FocusPointCropImage extends FocusPointImage
             $cropped_img->FocusY = $img->FocusY * ($cropData->originalHeight / $img->height);
             $cropped_img->CropData = null; // unset so we offset-crop only once
             // and recurse
-            return $cropped_img->CroppedFocusedImage($width, $height, $upscale);
+            return $cropped_img->CroppedFocusedImage($width, $height, filter_var($upscale, FILTER_VALIDATE_BOOLEAN));
         }
 
         // delegate to FocusPointImage class
-        return parent::CroppedFocusedImage($width, $height, $upscale);
-        
+        return parent::CroppedFocusedImage($width, $height, filter_var($upscale, FILTER_VALIDATE_BOOLEAN));
+
     }
 
     public function CroppedOffsetImage($offsetX, $offsetY, $width, $height)
