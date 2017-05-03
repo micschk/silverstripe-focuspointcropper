@@ -14,9 +14,8 @@
 				var self = this;
 				var crop_img = self.prev('img');
 				var config = JSON.parse(this.getCropField().attr('data-cropconfig'));
-console.log(config);
+
 				var sizes = JSON.parse(this.getCropField().attr('data-cropsizing'));
-console.log(sizes);
 
 				crop_img.cropper( config )
 					.on('built.cropper',function(){
