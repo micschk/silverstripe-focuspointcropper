@@ -77,6 +77,10 @@
         read(this.response);
       };
 
+      if (options.checkCrossOrigin && isCrossOriginURL(url) && $this.prop('crossOrigin')) {
+        url = addTimestamp(url);
+      }
+
       xhr.open('get', url);
       xhr.responseType = 'arraybuffer';
       xhr.send();
@@ -86,9 +90,9 @@
       var options = this.options;
       var orientation = getOrientation(arrayBuffer);
       var image = this.image;
-      var rotate;
-      var scaleX;
-      var scaleY;
+      var rotate = 0;
+      var scaleX = 1;
+      var scaleY = 1;
 
       if (orientation > 1) {
         this.url = arrayBufferToDataURL(arrayBuffer);

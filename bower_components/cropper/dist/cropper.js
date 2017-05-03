@@ -1,11 +1,11 @@
 /*!
- * Cropper v2.3.0
+ * Cropper v2.3.4
  * https://github.com/fengyuanchen/cropper
  *
  * Copyright (c) 2014-2016 Fengyuan Chen and contributors
  * Released under the MIT license
  *
- * Date: 2016-02-22T02:13:13.332Z
+ * Date: 2016-09-03T05:50:45.412Z
  */
 
 (function (factory) {
@@ -64,10 +64,10 @@
   var EVENT_ZOOM = 'zoom.' + NAMESPACE;
 
   // RegExps
-  var REGEXP_ACTIONS = /e|w|s|n|se|sw|ne|nw|all|crop|move|zoom/;
-  var REGEXP_DATA_URL = /^data\:/;
-  var REGEXP_DATA_URL_HEAD = /^data\:([^\;]+)\;base64,/;
-  var REGEXP_DATA_URL_JPEG = /^data\:image\/jpeg.*;base64,/;
+  var REGEXP_ACTIONS = /^(e|w|s|n|se|sw|ne|nw|all|crop|move|zoom)$/;
+  var REGEXP_DATA_URL = /^data:/;
+  var REGEXP_DATA_URL_HEAD = /^data:([^;]+);base64,/;
+  var REGEXP_DATA_URL_JPEG = /^data:image\/jpeg.*;base64,/;
 
   // Data keys
   var DATA_PREVIEW = 'preview';
@@ -90,7 +90,7 @@
 
   // Supports
   var SUPPORT_CANVAS = $.isFunction($('<canvas>')[0].getContext);
-  var IS_SAFARI = navigator && /safari/i.test(navigator.userAgent) && /apple computer/i.test(navigator.vendor);
+  var IS_SAFARI_OR_UIWEBVIEW = navigator && /(Macintosh|iPhone|iPod|iPad).*AppleWebKit/i.test(navigator.userAgent);
 
   // Maths
   var num = Number;
@@ -158,7 +158,7 @@
     var newImage;
 
     // Modern browsers (ignore Safari, #120 & #509)
-    if (image.naturalWidth && !IS_SAFARI) {
+    if (image.naturalWidth && !IS_SAFARI_OR_UIWEBVIEW) {
       return callback(image.naturalWidth, image.naturalHeight);
     }
 
@@ -178,12 +178,17 @@
     var scaleX = options.scaleX;
     var scaleY = options.scaleY;
 
-    if (isNumber(rotate)) {
+    // Rotate should come first before scale to match orientation transform
+    if (isNumber(rotate) && rotate !== 0) {
       transforms.push('rotate(' + rotate + 'deg)');
     }
 
-    if (isNumber(scaleX) && isNumber(scaleY)) {
-      transforms.push('scale(' + scaleX + ',' + scaleY + ')');
+    if (isNumber(scaleX) && scaleX !== 1) {
+      transforms.push('scaleX(' + scaleX + ')');
+    }
+
+    if (isNumber(scaleY) && scaleY !== 1) {
+      transforms.push('scaleY(' + scaleY + ')');
     }
 
     return transforms.length ? transforms.join(' ') : 'none';
@@ -262,11 +267,11 @@
       context.translate(translateX, translateY);
     }
 
+    // Rotate should come first before scale as in the "getTransform" function
     if (rotatable) {
       context.rotate(rotate * Math.PI / 180);
     }
 
-    // Should call `scale` after rotated
     if (scalable) {
       context.scale(scaleX, scaleY);
     }
@@ -375,7 +380,7 @@
           orientation = dataView.getUint16(offset, littleEndian);
 
           // Override the orientation with its default value for Safari (#120)
-          if (IS_SAFARI) {
+          if (IS_SAFARI_OR_UIWEBVIEW) {
             dataView.setUint16(offset, 1, littleEndian);
           }
 
@@ -514,6 +519,10 @@
         read(this.response);
       };
 
+      if (options.checkCrossOrigin && isCrossOriginURL(url) && $this.prop('crossOrigin')) {
+        url = addTimestamp(url);
+      }
+
       xhr.open('get', url);
       xhr.responseType = 'arraybuffer';
       xhr.send();
@@ -523,9 +532,9 @@
       var options = this.options;
       var orientation = getOrientation(arrayBuffer);
       var image = this.image;
-      var rotate;
-      var scaleX;
-      var scaleY;
+      var rotate = 0;
+      var scaleX = 1;
+      var scaleY = 1;
 
       if (orientation > 1) {
         this.url = arrayBufferToDataURL(arrayBuffer);
@@ -730,8 +739,9 @@
       $this.one(EVENT_BUILT, options.built);
 
       // Trigger the built event asynchronously to keep `data('cropper')` is defined
-      setTimeout($.proxy(function () {
+      this.completing = setTimeout($.proxy(function () {
         this.trigger(EVENT_BUILT);
+        this.trigger(EVENT_CROP, this.getData());
         this.isCompleted = true;
       }, this), 0);
     },
@@ -739,6 +749,10 @@
     unbuild: function () {
       if (!this.isBuilt) {
         return;
+      }
+
+      if (!this.isCompleted) {
+        clearTimeout(this.completing);
       }
 
       this.isBuilt = false;
@@ -1226,12 +1240,6 @@
 
       if (this.isCompleted) {
         this.trigger(EVENT_CROP, this.getData());
-      } else if (!this.isBuilt) {
-
-        // Only trigger one crop event before complete
-        this.$element.one(EVENT_BUILT, $.proxy(function () {
-          this.trigger(EVENT_CROP, this.getData());
-        }, this));
       }
     },
 
@@ -1656,11 +1664,11 @@
         aspectRatio = width && height ? width / height : 1;
       }
 
-      if (this.limited) {
+      if (this.isLimited) {
         minLeft = cropBox.minLeft;
         minTop = cropBox.minTop;
-        maxWidth = minLeft + min(container.width, canvas.left + canvas.width);
-        maxHeight = minTop + min(container.height, canvas.top + canvas.height);
+        maxWidth = minLeft + min(container.width, canvas.width, canvas.left + canvas.width);
+        maxHeight = minTop + min(container.height, canvas.height, canvas.top + canvas.height);
       }
 
       range = {
@@ -2008,7 +2016,7 @@
             this.$cropBox.removeClass(CLASS_HIDDEN);
             this.isCropped = true;
 
-            if (this.limited) {
+            if (this.isLimited) {
               this.limitCropBox(true, true);
             }
           }
@@ -2661,8 +2669,12 @@
       var context;
       var data;
 
-      if (!this.isBuilt || !this.isCropped || !SUPPORT_CANVAS) {
+      if (!this.isBuilt || !SUPPORT_CANVAS) {
         return;
+      }
+
+      if (!this.isCropped) {
+        return getSourceCanvas(this.$clone[0], this.image);
       }
 
       if (!$.isPlainObject(options)) {

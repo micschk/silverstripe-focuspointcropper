@@ -1,6 +1,33 @@
 # Changelog
 
 
+## 2.3.4 (Sep 3, 2016)
+
+- Fixed a bug of cropping in view mode 1 and 2.
+- Fixed a bug of calling `ready` event twice when call `replace` method.
+- Fixed dependencies problem in the package.json file.
+
+
+## 2.3.3 (Aug 10, 2016)
+
+- Allow scroll when the `dragMode` is "none" on touch screens (#727).
+- Fixed the issue of orientation transform (#740).
+
+
+## 2.3.2 (Jun 8, 2016)
+
+- Fixed wrong property reference (#705)
+- Fixed the wrong place of the crop event triggering (#706).
+- Fixed the calling order of `scale` and `rotate` (#709).
+
+
+## 2.3.1 (May 28, 2016)
+
+- Improved the rotate and scale transform behaviour (#633, idea by afeibus).
+- Improved the `getCroppedCanvas` method to return the whole canvas if it is not cropped (#666, PR by @vinnymac).
+- Check cross origin setting when load image by XMLHTTPRequest (#669)
+
+
 ## 2.3.0 (Feb 22, 2016)
 
 - Added a new parameter to the `replace` method for applying filters.

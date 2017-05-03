@@ -50,7 +50,7 @@
     var newImage;
 
     // Modern browsers (ignore Safari, #120 & #509)
-    if (image.naturalWidth && !IS_SAFARI) {
+    if (image.naturalWidth && !IS_SAFARI_OR_UIWEBVIEW) {
       return callback(image.naturalWidth, image.naturalHeight);
     }
 
@@ -70,12 +70,17 @@
     var scaleX = options.scaleX;
     var scaleY = options.scaleY;
 
-    if (isNumber(rotate)) {
+    // Rotate should come first before scale to match orientation transform
+    if (isNumber(rotate) && rotate !== 0) {
       transforms.push('rotate(' + rotate + 'deg)');
     }
 
-    if (isNumber(scaleX) && isNumber(scaleY)) {
-      transforms.push('scale(' + scaleX + ',' + scaleY + ')');
+    if (isNumber(scaleX) && scaleX !== 1) {
+      transforms.push('scaleX(' + scaleX + ')');
+    }
+
+    if (isNumber(scaleY) && scaleY !== 1) {
+      transforms.push('scaleY(' + scaleY + ')');
     }
 
     return transforms.length ? transforms.join(' ') : 'none';
@@ -154,11 +159,11 @@
       context.translate(translateX, translateY);
     }
 
+    // Rotate should come first before scale as in the "getTransform" function
     if (rotatable) {
       context.rotate(rotate * Math.PI / 180);
     }
 
-    // Should call `scale` after rotated
     if (scalable) {
       context.scale(scaleX, scaleY);
     }
@@ -267,7 +272,7 @@
           orientation = dataView.getUint16(offset, littleEndian);
 
           // Override the orientation with its default value for Safari (#120)
-          if (IS_SAFARI) {
+          if (IS_SAFARI_OR_UIWEBVIEW) {
             dataView.setUint16(offset, 1, littleEndian);
           }
 

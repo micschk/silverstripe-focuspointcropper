@@ -1,11 +1,11 @@
 /*!
- * Cropper v2.3.0
+ * Cropper v2.3.4
  * https://github.com/fengyuanchen/cropper
  *
  * Copyright (c) 2014-2016 Fengyuan Chen and contributors
  * Released under the MIT license
  *
- * Date: 2016-02-22T02:13:13.332Z
+ * Date: 2016-09-03T05:50:45.412Z
  */
 .cropper-container {
   font-size: 0;
@@ -19,10 +19,6 @@
           user-select: none;
 
   direction: ltr !important;
-  -ms-touch-action: none;
-      touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
 }
 
 .cropper-container img {

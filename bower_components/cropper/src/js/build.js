@@ -79,8 +79,9 @@
       $this.one(EVENT_BUILT, options.built);
 
       // Trigger the built event asynchronously to keep `data('cropper')` is defined
-      setTimeout($.proxy(function () {
+      this.completing = setTimeout($.proxy(function () {
         this.trigger(EVENT_BUILT);
+        this.trigger(EVENT_CROP, this.getData());
         this.isCompleted = true;
       }, this), 0);
     },
@@ -88,6 +89,10 @@
     unbuild: function () {
       if (!this.isBuilt) {
         return;
+      }
+
+      if (!this.isCompleted) {
+        clearTimeout(this.completing);
       }
 
       this.isBuilt = false;

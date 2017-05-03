@@ -24,11 +24,11 @@
         aspectRatio = width && height ? width / height : 1;
       }
 
-      if (this.limited) {
+      if (this.isLimited) {
         minLeft = cropBox.minLeft;
         minTop = cropBox.minTop;
-        maxWidth = minLeft + min(container.width, canvas.left + canvas.width);
-        maxHeight = minTop + min(container.height, canvas.top + canvas.height);
+        maxWidth = minLeft + min(container.width, canvas.width, canvas.left + canvas.width);
+        maxHeight = minTop + min(container.height, canvas.height, canvas.top + canvas.height);
       }
 
       range = {
@@ -376,7 +376,7 @@
             this.$cropBox.removeClass(CLASS_HIDDEN);
             this.isCropped = true;
 
-            if (this.limited) {
+            if (this.isLimited) {
               this.limitCropBox(true, true);
             }
           }
