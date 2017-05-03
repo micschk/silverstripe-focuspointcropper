@@ -41,12 +41,16 @@ class FocusPointCropField extends FocusPointField
         // feed config to js
         $field->setAttribute('data-cropconfig', json_encode( $this->config()->cropconfig ));
 
-        // feed some more info to js
+        // feed some more info to js ($previewImage gets created with these sizes from FocusPointField)
+        $previewImage = $image->FitMax(Config::inst()->get('FocusPointField', 'max_width'), Config::inst()->get('FocusPointField', 'max_height'));
         $sizes = array(
+            // feed values relative to which the crop data will be scaled from JS
             'originalWidth' => $image->width,
             'originalHeight' => $image->height,
-            'previewWidth' => $image->FocusPointFieldImage()->width,
-            'previewHeight' => $image->FocusPointFieldImage()->height,
+            'previewWidth' => $previewImage->width,
+            'previewHeight' => $previewImage->height,
+            // not actually used, but for reference:
+            'cmsPreviewWidth' => Config::inst()->get('Image', 'asset_preview_width'),
         );
         $field->setAttribute('data-cropsizing', json_encode($sizes));
 
