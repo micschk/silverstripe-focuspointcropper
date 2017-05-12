@@ -95,6 +95,40 @@ class FocusPointCropImage extends FocusPointImage
         return parent::CroppedFocusedImage($width, $height, filter_var($upscale, FILTER_VALIDATE_BOOLEAN));
 
     }
+    
+    /**
+     * Generate a cropped version of the original image only.
+     * Doesn't use FocusPoint.
+     *
+     * @return Image|null
+     */
+    public function CroppedImageOnly()
+    {
+        // get reference to original image
+        $img = $this->owner;
+
+        // Crop first (once, on following actions CropData will be non-existant)
+        $cropData = json_decode($img->CropData);
+        
+        if (
+            $cropData // If we have data and the properties we need are defined
+            && property_exists($cropData, 'originalX') && property_exists($cropData, 'originalY')
+            && property_exists($cropData, 'originalWidth') && property_exists($cropData, 'originalHeight')
+            // AND at least width or height is different from original
+            && ( $cropData->originalWidth != $img->width || $cropData->originalHeight != $img->height )
+        ) {
+            $cropped_img = $this->owner->CroppedOffsetImage(
+                (int)$cropData->originalX, (int)$cropData->originalY,
+                (int)$cropData->originalWidth, (int)$cropData->originalHeight
+            );
+            
+            return $cropped_img;
+        }
+
+        // Just return the original image if no cropData exists
+        return $this->owner;
+
+    }
 
     public function CroppedOffsetImage($offsetX, $offsetY, $width, $height)
     {
